@@ -7,9 +7,9 @@ from twisted.internet.protocol import ClientFactory
 
 from common import COMMANDS, display_message, validate_file_md5_hash, get_file_md5_hash, read_bytes_from_file, clean_and_split_input
 
-import time
 import pyinotify
 from multiprocessing import Process, Queue
+from subprocess import *
 
 class FileTransferProtocol(basic.LineReceiver):
     delimiter = '\n'
@@ -31,7 +31,6 @@ class FileTransferProtocol(basic.LineReceiver):
     def lineReceived(self, line):
         print(line)
         if line == 'ENDMSG':
-            print self.buffer
             if 'Welcome' in self.buffer:
                 file_path = os.path.join(self.factory.files_path, self.factory.sendfile)
                 self.transport.write('PUT %s %s\n' % (self.factory.sendfile, get_file_md5_hash(file_path)))
@@ -132,7 +131,7 @@ class FileSaveEventHandler(pyinotify.ProcessEvent):
 
 if __name__ == '__main__':
 	parser = optparse.OptionParser()
-	parser.add_option('--ip', action = 'store', type = 'string', dest = 'ip_address', default = '127.0.0.1', help = 'server IP address')
+	parser.add_option('--ip', action = 'store', type = 'string', dest = 'ip_address', default = '172.16.238.10', help = 'server IP address')
 	parser.add_option('-p', '--port', action = 'store', type = 'int', dest = 'port', default = 1234, help = 'server port')
 	parser.add_option('--path', action = 'store', type = 'string', dest = 'path', help = 'directory where the incoming files are saved')
 	parser.add_option('--file', action = 'store', type = 'string', dest = 'file', help = 'file to be sent')

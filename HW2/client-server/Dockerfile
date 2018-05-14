@@ -3,17 +3,13 @@
 # Based on Ubuntu
 ############################################################
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER  Yunchen Lo (NTHU|email:yunchen.lo@gapp.nthu.edu.tw)
 
 #Update the apt-get package
 RUN apt-get update
 
 #Install all the languages/compilers we are supporting.
-RUN add-apt-repository ppa:jonathonf/gcc-7.1
-RUN apt-get update
-
-RUN apt-get install -y gcc-7 g++-7
 
 #prepare for Java download
 RUN apt-get install -y python-software-properties
@@ -32,5 +28,19 @@ RUN apt-get update && \
     apt-get -y install -q python-dev libffi-dev libssl-dev python-pip
 RUN pip install service_identity pycrypto && \
     pip install twisted==14.0.0
+
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test
+RUN apt update
+RUN apt install g++-7 -y
+
+RUN update-alternatives \
+    --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
+    --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-7 \
+    --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-7 \
+    --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-7
+
+WORKDIR /app
+ADD . /app
+EXPOSE 80
 
 CMD ["python", "server.py"]

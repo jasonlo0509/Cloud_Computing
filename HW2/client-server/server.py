@@ -23,7 +23,7 @@ from twisted.protocols import basic
 from common import COMMANDS, display_message, validate_file_md5_hash, get_file_md5_hash, read_bytes_from_file, clean_and_split_input
 
 import subprocess
-import time
+from subprocess import *
 
 class FileTransferProtocol(basic.LineReceiver):
 	delimiter = '\n'
@@ -204,9 +204,11 @@ class FileTransferServerFactory(protocol.ServerFactory):
 		self.files = None
 	
 if __name__ == '__main__':
+	if not os.path.isdir('./server'):
+		check_call( 'mkdir ./server', shell=True)
 	parser = optparse.OptionParser()
 	parser.add_option('-p', '--port', action = 'store', type = 'int', dest = 'port', default = 1234, help = 'server listening port')
-	parser.add_option('--path', action = 'store', type = 'string', dest = 'path', help = 'directory where the incoming files are saved')
+	parser.add_option('--path', action = 'store', type = 'string', dest = 'path', default = './server', help = 'directory where the incoming files are saved')
 	(options, args) = parser.parse_args()
 	
 	display_message('Listening on port %d, serving files from directory: %s' % (options.port, options.path))
