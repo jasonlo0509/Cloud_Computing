@@ -9,6 +9,7 @@ from common import COMMANDS, display_message, validate_file_md5_hash, get_file_m
 
 import time
 import pyinotify
+from multiprocessing import Process, Queue
 
 class FileTransferProtocol(basic.LineReceiver):
     delimiter = '\n'
@@ -102,14 +103,32 @@ class FileTransferClientFactory(protocol.ClientFactory):
         self.files_path = files_path
         self.sendfile = sendfile
 
+# run reactor many times
+def run_reactor(ip_address, port, path, file):
+    def f(q):
+        try:
+            reactor.connectTCP(ip_address, port, FileTransferClientFactory(path, file))
+            reactor.run()
+            q.put(None)
+        except Exception as e:
+            q.put(e)
+
+    q = Queue()
+    p = Process(target=f, args=(q,))
+    p.start()
+    result = q.get()
+    p.join()
+
+    if result is not None:
+        raise result
+
 # Monitor the code close event in folder
 class FileSaveEventHandler(pyinotify.ProcessEvent):
 	def process_IN_CLOSE_WRITE(self, event):
-		if event.pathname.endswith('.c'):
+		if event.pathname.endswith('.c') or event.pathname.endswith('.cpp') or event.pathname.endswith('.java'):
 			print "CLOSE_WRITE event:", event.pathname.split('/')[-1]
 			print 'Client started, incoming files will be saved to %s' % (options.path)
-			reactor.connectTCP(options.ip_address, options.port, FileTransferClientFactory(options.path, event.pathname.split('/')[-1]))
-			reactor.run()
+			run_reactor(options.ip_address, options.port, options.path, event.pathname.split('/')[-1])
 
 if __name__ == '__main__':
 	parser = optparse.OptionParser()
