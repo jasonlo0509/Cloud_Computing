@@ -106,9 +106,9 @@ class FileTransferClientFactory(protocol.ClientFactory):
 class FileSaveEventHandler(pyinotify.ProcessEvent):
 	def process_IN_CLOSE_WRITE(self, event):
 		if event.pathname.endswith('.c'):
-			print "CLOSE_WRITE event:", event.pathname
+			print "CLOSE_WRITE event:", event.pathname.split('/')[-1]
 			print 'Client started, incoming files will be saved to %s' % (options.path)
-			reactor.connectTCP(options.ip_address, options.port, FileTransferClientFactory(options.path, event.pathname))
+			reactor.connectTCP(options.ip_address, options.port, FileTransferClientFactory(options.path, event.pathname.split('/')[-1]))
 			reactor.run()
 
 if __name__ == '__main__':
