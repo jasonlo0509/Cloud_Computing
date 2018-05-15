@@ -1,14 +1,14 @@
-version: '2.3'
+version: '2'
 services:
   server:
-    image: compilerserver
+    build: .
     volumes:
       - serverdata:/app/server
     networks:
       app_net:
         ipv4_address: 172.16.238.10
   client:
-    image: client
+    image: yclo/compilerclient:first
     volumes:
       - ./client:/app/client
       - ./client/result:/app/client/result
@@ -18,7 +18,6 @@ services:
 networks:
   app_net:
     driver: bridge
-    enable_ipv6: false
     ipam:
       driver: default
       config:
