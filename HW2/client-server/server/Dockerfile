@@ -29,6 +29,7 @@ RUN apt-get update && \
 RUN pip install service_identity pycrypto && \
     pip install twisted==14.0.0
 
+#prepare g++-7 & gcc-7
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt update
 RUN apt install g++-7 -y
@@ -39,8 +40,10 @@ RUN update-alternatives \
     --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-7 \
     --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-7
 
+#set environment
+RUN mkdir -p /app/server
 WORKDIR /app
 ADD . /app
-EXPOSE 80
+#EXPOSE 
 
 CMD ["python", "server.py"]

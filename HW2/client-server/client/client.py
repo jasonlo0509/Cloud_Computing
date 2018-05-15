@@ -123,27 +123,32 @@ def run_reactor(ip_address, port, path, file):
 
 # Monitor the code close event in folder
 class FileSaveEventHandler(pyinotify.ProcessEvent):
-	def process_IN_CLOSE_WRITE(self, event):
-		if event.pathname.endswith('.c') or event.pathname.endswith('.cpp') or event.pathname.endswith('.java'):
-			print "CLOSE_WRITE event:", event.pathname.split('/')[-1]
-			print 'Client started, incoming files will be saved to %s' % (options.path)
-			run_reactor(options.ip_address, options.port, options.path, event.pathname.split('/')[-1])
+    def process_IN_CLOSE_WRITE(self, event):
+        if event.pathname.endswith('.c') or event.pathname.endswith('.cpp') or event.pathname.endswith('.java'):
+            print "CLOSE_WRITE event:", event.pathname.split('/')[-1]
+            print 'Client started, incoming files will be saved to %s' % (options.path)
+            run_reactor(options.ip_address, options.port, options.path, event.pathname.split('/')[-1])
 
 if __name__ == '__main__':
-	parser = optparse.OptionParser()
-	parser.add_option('--ip', action = 'store', type = 'string', dest = 'ip_address', default = '172.16.238.10', help = 'server IP address')
-	parser.add_option('-p', '--port', action = 'store', type = 'int', dest = 'port', default = 1234, help = 'server port')
-	parser.add_option('--path', action = 'store', type = 'string', dest = 'path', default = '/app/client', help = 'directory where the incoming files are saved')
-	#parser.add_option('--file', action = 'store', type = 'string', dest = 'file', help = 'file to be sent')
+    parser = optparse.OptionParser()
+    parser.add_option('--ip', action = 'store', type = 'string', dest = 'ip_address', default = '172.16.238.10', help = 'server IP address')
+    parser.add_option('-p', '--port', action = 'store', type = 'int', dest = 'port', default = 1234, help = 'server port')
+    parser.add_option('--path', action = 'store', type = 'string', dest = 'path', default = '/app/client', help = 'directory where the incoming files are saved')
+    parser.add_option('--file', action = 'store', type = 'string', dest = 'file', help = 'file to be sent')
     
-	(options, args) = parser.parse_args()
-	# watch manager
-	wm = pyinotify.WatchManager()
-	wm.add_watch(options.path, pyinotify.ALL_EVENTS, rec=False)
+    (options, args) = parser.parse_args()
+    print("666\n")
+    reactor.connectTCP(options.ip_address, options.port, FileTransferClientFactory(options.path, 'hello.c'))
+    reactor.run()
+    '''
+    # watch manager
+    wm = pyinotify.WatchManager()
+    wm.add_watch(options.path, pyinotify.ALL_EVENTS, rec=False)
 
-	# event handler
-	eh = FileSaveEventHandler()
+    # event handler
+    eh = FileSaveEventHandler()
 
     # notifier
-	notifier = pyinotify.Notifier(wm, eh)
-	notifier.loop()
+    notifier = pyinotify.Notifier(wm, eh)
+    notifier.loop()
+    '''
