@@ -70,7 +70,8 @@ class FileTransferProtocol(basic.LineReceiver):
         
     def rawDataReceived(self, data):
         filename = self.file_data[0]
-        file_path = os.path.join(self.factory.files_path, filename)
+        result_path = os.path.join(self.factory.files_path, 'result')
+        file_path = os.path.join(result_path, filename)
         
         print 'Receiving file chunk (%d KB)' % (len(data))
         
@@ -137,6 +138,7 @@ if __name__ == '__main__':
     parser.add_option('--file', action = 'store', type = 'string', dest = 'file', help = 'file to be sent')
     
     (options, args) = parser.parse_args()
+    '''
     print("666\n")
     reactor.connectTCP(options.ip_address, options.port, FileTransferClientFactory(options.path, 'hello.c'))
     reactor.run()
@@ -151,4 +153,3 @@ if __name__ == '__main__':
     # notifier
     notifier = pyinotify.Notifier(wm, eh)
     notifier.loop()
-    '''

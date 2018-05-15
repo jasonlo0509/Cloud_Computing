@@ -3,23 +3,15 @@ services:
   server:
     image: compilerserver
     volumes:
-      - type: volume
-        source: serverdata
-        target: /data
-        volume:
-          nocopy: 'true'
+      - serverdata:/app/server
     networks:
       app_net:
         ipv4_address: 172.16.238.10
   client:
     image: client
     volumes:
-      - type: bind
-        source: ./client
-        target: /app/client
-      - type: bind
-        source: ./client/result
-        target: /app/client/result
+      - ./client:/app/client
+      - ./client/result:/app/client/result
     networks:
       app_net:
         ipv4_address: 172.16.238.7
